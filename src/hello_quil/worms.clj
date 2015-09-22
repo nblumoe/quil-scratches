@@ -1,4 +1,4 @@
-(ns hello-quil.core
+(ns hello-quil.worms
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
