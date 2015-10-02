@@ -25,10 +25,9 @@
            (< (:radius state) 20) true
            :default (:grow state))})
 
-(defn- draw-circle
-  [pos state]
+(defn- draw-circle [pos state size]
   (q/translate pos)
-  (let [num-points 30]
+  (let [num-points 10]
     (doseq [[x y] (take num-points
                         (points-on-circle (* (q/millis) 0.0009)
                                           (/ Math/PI num-points 0.5)))]
@@ -36,15 +35,15 @@
             xr (* x radius)
             yr (* y radius)]
         (q/fill (* 200 (q/noise (/ (q/millis) 1000)))
-                20 30)
-        (q/ellipse xr yr 10 15)
+                90 30)
+        (q/ellipse xr yr size size)
         (q/point xr yr)))))
 
 (defn draw-state [state]
   (q/background 20)
   (q/stroke 0)
-  (draw-circle [200 110] state)
-  (draw-circle [120 150] state))
+  (draw-circle [200 110] state 20)
+  (draw-circle [120 150] state 30))
 
 (q/defsketch circles
   :title "Perlin noise circles"
