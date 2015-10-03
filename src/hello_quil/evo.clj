@@ -59,7 +59,6 @@
 
 (defn setup []
   (q/color-mode :hsb 1.0)
-  (q/no-stroke)
   (q/frame-rate frame-rate)
   (q/no-smooth)
   (reset-state))
@@ -74,14 +73,15 @@
   (let [size (* *grid-size* 2)]
     (q/fill energy
             1
-            energy)
+            energy
+            0.7)
     (q/ellipse (* *grid-size* position)
                (* *grid-size* generation)
                (* size energy)
                (* size energy))))
 
-(defn draw-state [{:keys [cells]}]
-  (q/background 5)
+(defn draw-state [{:keys [cells noise-seed]}]
+  (q/background 0 0 0.03)
   (binding [*grid-size* (/ (q/height) cells-max-age 1.2)]
     (center-last-generation cells)
     (doall (map draw-cell cells))))
