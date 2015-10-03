@@ -2,11 +2,15 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
+(def frame-rate 20)
+
 (defn create-cell [position]
   {:generation 0
    :position position
-   :energy 0
-   :size 10})
+   :energy (rand 1)
+   :size 60})
+
+(def ^:dynamic *grid-size* 30)
 
 (defn max-generation [cells]
   (apply max (map :generation cells)))
@@ -15,45 +19,74 @@
   [cells]
   (filter #(= (:generation %) (max-generation cells)) cells))
 
-(defn evolve-cells [cells]
+(def cells-per-generation 20)
+(def cells-max-age 20)
+
+(defn kill-oldest-generation [cells]
+  (if (> (max-generation cells) cells-max-age)
+    (drop cells-per-generation cells)
+    cells))
+
+(defn- update-energy
+  [noise-seed {:keys [energy position] :as cell}]
+  (assoc cell :energy (let [new-energy (-> (q/noise (+ energy (* noise-seed (inc position))))
+                                           (- 0.5)
+                                           (+ energy))]
+                        (cond
+                          (< new-energy 0) 0
+                          (> new-energy 1) 1
+                          :default new-energy))))
+
+(defn evolve-cells [noise-seed cells]
   (->> cells
        latest-generation
        (map #(update-in % [:generation] inc))
-       (map (fn [cell] (update-in cell [:energy] #(mod (+ 10 %) 255))))
+       (map (partial update-energy noise-seed))
        (concat cells)))
-
-(def grid-size 10)
 
 (defn translate-to-center []
   (q/translate (/ (q/width) 2)
-               (/ (q/height) 2)))
+               (/ (q/height) 1.1)))
 
 (defn center-last-generation [cells]
   (translate-to-center)
-  (q/translate 0 (- (* 10 (max-generation cells)))))
+  (q/translate (- (/ (* *grid-size* cells-per-generation) 2))
+               (- (* *grid-size* (max-generation cells)))))
+
+(defn reset-state []
+  {:noise-seed (q/random 100)
+   :cells (map create-cell (range cells-per-generation))})
 
 (defn setup []
-  (q/smooth)
-  (q/frame-rate 3)
-  {:noise-seed (q/random 10)
-   :cells (map create-cell (range 10))})
+  (q/color-mode :hsb 1.0)
+  (q/no-stroke)
+  (q/frame-rate frame-rate)
+  (q/no-smooth)
+  (reset-state))
 
 (defn update-state [{:keys [noise-seed] :as state}]
   (-> state
-      (update-in [:noise-seed] #(+ % 0.01))
-      (update-in [:cells] evolve-cells)))
+      (update-in [:noise-seed] #(+ % 0.1))
+      (update-in [:cells] (partial evolve-cells noise-seed))
+      (update-in [:cells] kill-oldest-generation)))
 
 (defn draw-cell [{:keys [size generation position energy]}]
-  (q/fill energy)
-  (q/ellipse (* grid-size position) (* grid-size generation) size size))
+  (let [size (* *grid-size* 2)]
+    (q/fill energy
+            1
+            energy)
+    (q/ellipse (* *grid-size* position)
+               (* *grid-size* generation)
+               (* size energy)
+               (* size energy))))
 
 (defn draw-state [{:keys [cells]}]
-  (center-last-generation cells)
-  (q/background 20)
-  (q/stroke 200)
-  (q/fill 200)
-  (dorun (map draw-cell cells)))
+  (q/background 5)
+  (binding [*grid-size* (/ (q/height) cells-max-age 1.2)]
+    (center-last-generation cells)
+    (doall (map draw-cell cells))))
 
+#_
 (q/defsketch circles
   :title "Evolving noise"
   :size [200 200]
