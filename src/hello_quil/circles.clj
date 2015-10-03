@@ -45,6 +45,7 @@
   (draw-circle [200 110] state 20)
   (draw-circle [120 150] state 30))
 
+#_
 (q/defsketch circles
   :title "Perlin noise circles"
   :size [200 200]

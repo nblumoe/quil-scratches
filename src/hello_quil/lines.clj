@@ -33,7 +33,7 @@
       (q/stroke-weight (/ (second head) 3))
       (q/line head (first tail))
       (recur tail))))
-
+#_
 (q/defsketch lines
   :title "Some random lines"
   :size [200 200]

@@ -36,7 +36,7 @@
                        (/ (q/height) 2)]
     (doseq [{:keys [pos tree]} (:trees state)]
       (draw-tree pos tree))))
-
+#_
 (q/defsketch hello-quil
   :title "A forest of trees"
   :size [200 200]

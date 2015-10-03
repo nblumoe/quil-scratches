@@ -48,7 +48,7 @@
                            (/ (q/height) 2)]
         ;; Draw the circle.
         (q/ellipse x y width width)))))
-
+#_
 (q/defsketch hello-quil
   :title "You spin my circle right round"
   :size :fullscreen
