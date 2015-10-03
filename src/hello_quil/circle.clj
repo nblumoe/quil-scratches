@@ -9,8 +9,8 @@
   state)
 
 (defn- draw-spiral []
-  (let [num-segments 200
-        max-angle (* 20 2 Math/PI)
+  (let [num-segments 100
+        max-angle (* 40 2 Math/PI)
         diff-angle (/ Math/PI num-segments 0.5)
         diff-radius 0.01
         noise-amplitude 30
@@ -25,10 +25,10 @@
             y1 (+ center-y (* radius (Math/sin angle)))
             x2 (+ center-x (* new-radius (Math/cos new-angle)))
             y2 (+ center-y (* new-radius (Math/sin new-angle)))]
-        (q/stroke (+ radius (rand-int 10))
-                  100
-                  200
-                  (mod 2000 (inc radius)))
+        (q/stroke (- (rand-int 255) (/ radius 2))
+                  50
+                  (mod 200 (inc radius))
+                  (mod 200 (inc radius)))
         (q/line x1 y1 x2 y2)
         (when (< new-angle max-angle)
           (recur new-angle new-radius (+ noise 0.05)))))))
