@@ -24,27 +24,25 @@
       (assoc :radius 300
              :noise-seed (q/random 100))))
 
-(defn- draw-fuzzicle [angle position radius]
-  (q/with-translation position
-    (q/line (point-on-circle angle radius)
-            (point-on-circle (+ angle Math/PI) radius))))
+(defn- draw-fuzzicle [position radius noise-seed]
+  (doseq [angle (range 0 Math/PI 0.002)]
+    (let [rand-angle (+ angle
+                        (q/noise (+ (* 2 angle) noise-seed)))
+          rand-position (mapv #(+ % (* 100 (q/noise (+ (* 2 angle) noise-seed))) -50)
+                              position)
+          rand-radius (* (q/noise (+ (* 2 angle) noise-seed))
+                         radius)
+          color [160 (* 250 (/ angle (* 2 Math/PI))) 100]]
+      (apply q/stroke color)
+      (q/with-translation rand-position
+        (q/line (point-on-circle rand-angle rand-radius)
+                (point-on-circle (+ rand-angle Math/PI) rand-radius))))))
 
 (defn draw-state [{:keys [radius noise-seed]}]
   (q/background 0)
   (q/stroke-weight 0.1)
   (q/stroke 200)
-  (doseq [angle (range 0 Math/PI 0.002)]
-    (let [rand-angle (+ (q/noise (+ (* 2 angle) noise-seed))
-                        angle)
-          position [(/ (q/width) 2) (/ (q/height) 2)]
-          rand-position (mapv #(+ % (* 100 (q/noise (+ (* 2 angle) noise-seed))))
-                              position)
-          rand-radius (* (q/noise (+ (* 2 angle) noise-seed))
-                         radius)]
-      (draw-fuzzicle rand-angle
-                     rand-position
-                     rand-radius
-                     ))))
+  (draw-fuzzicle [(/ (q/width) 2) (/ (q/height) 2)] 400 noise-seed))
 
 #_
 (q/defsketch circles
