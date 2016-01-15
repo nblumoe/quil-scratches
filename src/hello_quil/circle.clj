@@ -40,6 +40,7 @@
   (q/color-mode :hsb)
   (dorun (repeatedly 300 draw-spiral)))
 
+#_
 (q/defsketch noisy-circle
   :title "A noisy circle"
   :size [200 200]
